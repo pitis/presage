@@ -668,6 +668,15 @@ impl ContentsStore for SqliteStore {
         Ok(pack.map(From::from))
     }
 
+    async fn has_sticker_pack(&self, id: &[u8]) -> Result<bool, Self::ContentsStoreError> {
+        Ok(query_scalar!(
+            r#"SELECT EXISTS(SELECT 1 FROM sticker_packs WHERE id = ?) AS "installed: bool""#,
+            id
+        )
+        .fetch_one(&self.db)
+        .await?)
+    }
+
     async fn remove_sticker_pack(&mut self, id: &[u8]) -> Result<bool, Self::ContentsStoreError> {
         let res = query!("DELETE FROM sticker_packs WHERE id = ?", id)
             .execute(&self.db)
@@ -763,6 +772,29 @@ mod test {
 
         assert!(store.upsert_profile_key(&uuid, key).await?);
         assert!(store.upsert_profile_key(&uuid, key).await?);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn has_sticker_pack_follows_installs() -> Result<(), Box<dyn std::error::Error>> {
+        let mut store = SqliteStore::open(":memory:", OnNewIdentity::Trust).await?;
+        let pack = StickerPack {
+            id: vec![1; 16],
+            key: vec![2; 32],
+            manifest: presage::store::StickerPackManifest {
+                title: "pack".into(),
+                author: "author".into(),
+                cover: None,
+                stickers: vec![],
+            },
+        };
+
+        assert!(!store.has_sticker_pack(&pack.id).await?);
+        store.add_sticker_pack(&pack).await?;
+        assert!(store.has_sticker_pack(&pack.id).await?);
+        store.remove_sticker_pack(&pack.id).await?;
+        assert!(!store.has_sticker_pack(&pack.id).await?);
 
         Ok(())
     }
