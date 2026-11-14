@@ -12,8 +12,9 @@ default = []
 cdsi = ["libsignal-service/cdsi"]
 
 [dependencies]
-# Until whisperfish/libsignal-service-rs#473 lands (its branch rebased on #501, uploadLength).
-libsignal-service = { git = "https://github.com/barafael/libsignal-service-rs", rev = "04e4e2f370c9a85e7bf80e91a64e5e049a5e63dc", default-features = false, features = [
+# Until whisperfish/libsignal-service-rs#473 lands (its branch rebased on #501, uploadLength;
+# head 2c65d88: groups through /v2/groups, invite-link joins leave joinFromInviteLink unset).
+libsignal-service = { git = "https://github.com/barafael/libsignal-service-rs", rev = "2c65d886905985c0ab5f5765bc36e4dc404891c6", default-features = false, features = [
     "phonenumber",
 ] }
 
