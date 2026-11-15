@@ -17,9 +17,11 @@ pub enum Received {
     /// Failed to decrypt a message from the specified service ID; `error` says why.
     /// A session reset with the contact may fix this, unless the error is
     /// [`SignalProtocolError::DuplicatedMessage`]: a message delivered again, already handled.
+    /// `story`: the message was a story, which Signal's clients don't report as a failure.
     DecryptionError {
         sender: ServiceId,
         error: SignalProtocolError,
+        story: bool,
     },
 
     /// One of the sender's devices failed to decrypt a message of ours: a retry receipt, which

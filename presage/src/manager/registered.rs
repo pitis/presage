@@ -683,6 +683,7 @@ impl<S: Store> Manager<S, Registered> {
                             // Who sent an unsealed envelope, as the server authenticated it:
                             // names the sender of a message that fails to decrypt.
                             let source = envelope.parse_source_service_id();
+                            let story = envelope.is_story();
                             let envelope = {
                                 // the permit is released at the end of the block (impl Drop)
                                 match envelope.parse_destination_service_id() {
@@ -1048,7 +1049,11 @@ impl<S: Store> Manager<S, Registered> {
                                     };
                                     if let Some((sender, error)) = failed {
                                         return Some((
-                                            Received::DecryptionError { sender, error },
+                                            Received::DecryptionError {
+                                                sender,
+                                                error,
+                                                story,
+                                            },
                                             state,
                                         ));
                                     }
